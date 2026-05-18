@@ -5,14 +5,14 @@ import joblib
 import warnings
 warnings.filterwarnings('ignore')
 
-# ── Page configuration ────────────────────────────────────────────────────────
+# Page configuration 
 st.set_page_config(
-    page_title="Employee Absenteeism Risk DSS",
+    page_title="Employee Short-Term Absenteeism Risk DSS",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# ── Simple clean CSS — dark background, white text, no complex hex palette ───
+# Simple clean CSS: dark background, white text
 st.markdown("""
 <style>
     .stApp { background-color: #1a1a2e; color: #f0f0f0; }
@@ -39,7 +39,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# ── Load model and data ───────────────────────────────────────────────────────
+# Load model and data
 @st.cache_resource
 def load_model():
     return joblib.load('absenteeism_model.pkl')
@@ -53,8 +53,8 @@ model        = model_data['model']
 sel_features = model_data['selected_features']
 df           = load_data()
 
-# ── Sidebar ───────────────────────────────────────────────────────────────────
-st.sidebar.markdown("## Absenteeism Risk DSS")
+# Sidebar
+st.sidebar.markdown("## Short-Term Absenteeism Risk DSS")
 st.sidebar.markdown("Decision Support System for HR Managers")
 st.sidebar.markdown("---")
 
@@ -71,9 +71,8 @@ st.sidebar.markdown(
 )
 
 
-# =============================================================================
-# PAGE 1 — EMPLOYEE RISK TABLE
-# =============================================================================
+# Page 1 — Employee Risk Table
+
 if page == "Employee Risk Table":
 
     st.title("Employee Risk Table")
@@ -84,7 +83,7 @@ if page == "Employee Risk Table":
     )
     st.markdown("---")
 
-    # ── Filters ───────────────────────────────────────────────────────────────
+    # Filters
     col1, col2, col3 = st.columns(3)
     with col1:
         dept_filter = st.multiselect(
@@ -114,7 +113,7 @@ if page == "Employee Risk Table":
     with col5:
         js_filter = st.slider("Filter by Job Satisfaction", 1, 5, (1, 5))
 
-    # ── Apply filters ─────────────────────────────────────────────────────────
+    # Apply filters
     filtered = df[
         (df['Department'].isin(dept_filter)) &
         (df['Risk_Label'].isin(risk_filter)) &
@@ -128,7 +127,7 @@ if page == "Employee Risk Table":
     st.markdown(f"**Showing {len(filtered):,} of {len(df):,} employees**")
     st.markdown("---")
 
-    # ── Summary metrics ───────────────────────────────────────────────────────
+    #Summary metrics 
     c1, c2, c3, c4 = st.columns(4)
     c1.metric("Employees Shown", f"{len(filtered):,}")
     c2.metric("High Risk",       f"{int((filtered['Predicted_Risk']==1).sum()):,}")
@@ -138,7 +137,7 @@ if page == "Employee Risk Table":
 
     st.markdown("---")
 
-    # ── Colour coding ─────────────────────────────────────────────────────────
+    # Colour coding
     def colour_risk(val):
         if val == 'High Risk':
             return 'background-color: darkred; color: white; font-weight: bold'
@@ -158,7 +157,7 @@ if page == "Employee Risk Table":
             return 'background-color: darkorange; color: white'
         return 'background-color: darkgreen; color: white'
 
-    # ── Build display table ───────────────────────────────────────────────────
+    # Build display table
     display_cols = [
         'Employee_ID', 'Age', 'Department', 'Job_Role',
         'Overtime', 'Job_Satisfaction', 'Work_Life_Balance',
@@ -183,7 +182,7 @@ if page == "Employee Risk Table":
     )
     st.dataframe(styled, width='stretch', hide_index=True, height=480)
 
-    # ── Download button ───────────────────────────────────────────────────────
+    # Download button
     csv = filtered[display_cols].to_csv(index=False).encode('utf-8')
     st.download_button(
         label="Download Filtered Results as CSV",
@@ -193,12 +192,11 @@ if page == "Employee Risk Table":
     )
 
 
-# =============================================================================
-# PAGE 2 — PREDICT EMPLOYEE RISK
-# =============================================================================
+
+# Page 2: Predict Employee Risk
 elif page == "Predict Employee Risk":
 
-    st.title("Predict Absenteeism Risk for an Employee")
+    st.title("Predict Short-Term Absenteeism Risk for an Employee")
     st.markdown(
         "Fill in the employee's details below and click **Get Risk Prediction**. "
         "The system will instantly predict their absenteeism risk level and show "
@@ -206,22 +204,22 @@ elif page == "Predict Employee Risk":
     )
     st.markdown("---")
 
-    # ── Input form ────────────────────────────────────────────────────────────
+    # Input form
     col1, col2, col3 = st.columns(3)
 
     with col1:
         st.markdown("**Work Situation**")
         overtime    = st.selectbox("Does the employee work overtime?", ["No", "Yes"])
         job_sat     = st.slider("Job Satisfaction (1 = Very Low, 5 = Very High)", 1, 5, 3)
-        job_involve = st.slider("How involved is the employee in their job? (1-5)", 1, 5, 3)
+        job_involve = st.slider("How involved is the employee in their job? (1 =Low, 5 = High)", 1, 5, 3)
         work_life   = st.slider("Work-Life Balance (1 = Poor, 4 = Excellent)", 1, 4, 2)
-        perf_rating = st.slider("Performance Rating (1-5)", 1, 5, 3)
-        work_env    = st.slider("Work Environment Satisfaction (1-5)", 1, 5, 3)
+        perf_rating = st.slider("Performance Rating (1 = Low, 5 = High)", 1, 5, 3)
+        work_env    = st.slider("Work Environment Satisfaction (1 = Low, 5 = High)", 1, 5, 3)
 
     with col2:
         st.markdown("**Pay and Personal Details**")
         monthly_inc   = st.number_input("Monthly Income (RM)", 1000, 25000, 8000, 500)
-        hourly_rate   = st.number_input("Hourly Rate", 10, 200, 60, 5)
+        hourly_rate   = st.number_input("Hourly Rate (Amount Paid Per Hour)", 10, 200, 60, 5)
         avg_hours     = st.slider("Average Hours Worked Per Week", 20, 70, 45)
         distance      = st.slider("Distance From Home (km)", 1, 60, 15)
         num_companies = st.slider("Number of Previous Companies Worked", 1, 15, 3)
@@ -240,7 +238,7 @@ elif page == "Predict Employee Risk":
     )
 
     if predict_btn:
-        # ── Compute engineered features from inputs ───────────────────────────
+        #Compute engineered features from inputs
         work_pressure    = avg_hours / (project_count + 1)
         experience_ratio = years_company / (age + 1)
         promotion_gap    = years_promo / (years_company + 1)
@@ -275,7 +273,7 @@ elif page == "Predict Employee Risk":
 
         st.markdown("---")
 
-        # ── Result display ────────────────────────────────────────────────────
+        # Result display
         st.markdown(
             '<p class="section-header">Prediction Result</p>',
             unsafe_allow_html=True
@@ -297,7 +295,7 @@ elif page == "Predict Employee Risk":
                     "absenteeism risk. Continue routine monitoring."
                 )
 
-            # ── Risk score displayed as percentage with decimals ──────────────
+            # Risk score displayed as percentage with decimals
             risk_pct = pred_prob * 100
             st.markdown(f"### Predicted Risk Score: **{risk_pct:.2f}%**")
             st.markdown(
@@ -307,7 +305,7 @@ elif page == "Predict Employee Risk":
             )
 
         with col_r2:
-            # ── Risk flags ────────────────────────────────────────────────────
+            # Risk flags
             st.markdown("**Main factors contributing to this result:**")
             flags = []
             if overtime == "Yes":
@@ -318,6 +316,8 @@ elif page == "Predict Employee Risk":
                 flags.append("Poor work-life balance — associated with burnout and absence")
             if distance > 35:
                 flags.append("Long commute — can increase fatigue and absence")
+            if project_count > 7:
+                flags.append("High Project Count: can be burnt out from high amount of project")    
             if work_pressure > 10:
                 flags.append("High workload — too many hours relative to project count")
             if promotion_gap > 0.5:
@@ -341,7 +341,7 @@ elif page == "Predict Employee Risk":
                     "Include in routine annual wellness check-in."
                 )
 
-        # ── Similar employees section ─────────────────────────────────────────
+        # Similar employees section
         st.markdown("---")
         st.markdown(
             '<p class="section-header">Employees with a Similar Risk Score</p>',
@@ -359,24 +359,10 @@ elif page == "Predict Employee Risk":
         ].copy()
         similar = similar.sort_values('Risk_Probability', ascending=False)
 
-        if pred_class == 1:
-            st.markdown(
-                f"The table below shows all employees in the dataset whose predicted "
-                f"risk score is within **5%** of this employee's score of "
-                f"**{risk_pct:.2f}%** (between {lower*100:.1f}% and {upper*100:.1f}%). "
-                f"HR can use this list to identify a group of employees who may benefit "
-                f"from a shared intervention."
-            )
-        else:
-            st.markdown(
-                f"The table below shows all employees in the dataset whose predicted "
-                f"risk score is within **5%** of this employee's score of "
-                f"**{risk_pct:.2f}%** (between {lower*100:.1f}% and {upper*100:.1f}%)."
-            )
 
         st.markdown(f"**{len(similar):,} employees found with a similar risk score.**")
 
-        # ── Build similar employees table ─────────────────────────────────────
+        # Build similar employees table
         sim_cols = [
             'Employee_ID', 'Age', 'Department', 'Job_Role',
             'Overtime', 'Job_Satisfaction', 'Work_Life_Balance',
@@ -426,6 +412,5 @@ elif page == "Predict Employee Risk":
 
         st.caption(
             "Employees are shown whose risk score falls within 5 percentage points "
-            "of the predicted score. A smaller or larger range can be explored by "
-            "adjusting the Risk Score filter on the Employee Risk Table page."
+            "of the predicted score."
         )
