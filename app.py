@@ -300,13 +300,13 @@ elif page == "Predict Employee Risk":
         with col_r1:
             if pred_class == 1:
                 st.error(
-                    "**HIGH RISK — Action Recommended**\n\n"
+                    "**HIGH RISK: Action Recommended**\n\n"
                     "This employee's profile is associated with a high risk of "
                     "repeated short-term absenteeism. An HR check-in is recommended."
                 )
             else:
                 st.success(
-                    "**LOW RISK — No Immediate Action Needed**\n\n"
+                    "**LOW RISK: No Immediate Action Needed**\n\n"
                     "This employee's profile does not show strong indicators of "
                     "absenteeism risk. Continue routine monitoring."
                 )
@@ -326,24 +326,24 @@ elif page == "Predict Employee Risk":
             flags = []
             if overtime == "Yes":
                 flags.append(
-                    "Working overtime — a known driver of absenteeism risk")
+                    "Working overtime: a known driver of absenteeism risk")
             if job_sat <= 2:
                 flags.append(
-                    "Low job satisfaction — directly linked to higher absence")
+                    "Low job satisfaction: directly linked to higher absence")
             if work_life <= 2:
                 flags.append(
-                    "Poor work-life balance — associated with burnout and absence")
+                    "Poor work-life balance: associated with burnout and absence")
             if distance > 35:
-                flags.append("Long commute — can increase fatigue and absence")
+                flags.append("Long commute: can increase fatigue and absence")
             if project_count > 7:
                 flags.append(
                     "High Project Count: can be burnt out from high amount of project")
             if work_pressure > 10:
                 flags.append(
-                    "High workload — too many hours relative to project count")
+                    "High workload: too many hours relative to project count")
             if promotion_gap > 0.5:
                 flags.append(
-                    "Limited career progression — may reduce motivation")
+                    "Limited career progression: may reduce motivation")
             if not flags:
                 flags.append(
                     "No major risk factors identified from the inputs provided")
