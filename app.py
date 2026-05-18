@@ -67,11 +67,11 @@ page = st.sidebar.radio(
 st.sidebar.markdown("---")
 st.sidebar.markdown(
     "Use this system to identify employees who may be at risk of repeated "
-    "short-term absenteeism and to take early action before the behaviour escalates."
+    "short-term absenteeism and to take early action."
 )
 
 
-# Page 1 — Employee Risk Table
+# Page 1: Employee Risk Table
 
 if page == "Employee Risk Table":
 
