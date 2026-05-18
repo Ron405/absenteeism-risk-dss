@@ -5,7 +5,7 @@ import joblib
 import warnings
 warnings.filterwarnings('ignore')
 
-# Page configuration 
+# Page configuration
 st.set_page_config(
     page_title="Employee Short-Term Absenteeism Risk DSS",
     layout="wide",
@@ -40,18 +40,22 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Load model and data
+
+
 @st.cache_resource
 def load_model():
     return joblib.load('absenteeism_model.pkl')
+
 
 @st.cache_data
 def load_data():
     return pd.read_csv('employee_absenteeism_predictions.csv')
 
-model_data   = load_model()
-model        = model_data['model']
+
+model_data = load_model()
+model = model_data['model']
 sel_features = model_data['selected_features']
-df           = load_data()
+df = load_data()
 
 # Sidebar
 st.sidebar.markdown("## Short-Term Absenteeism Risk DSS")
@@ -127,11 +131,13 @@ if page == "Employee Risk Table":
     st.markdown(f"**Showing {len(filtered):,} of {len(df):,} employees**")
     st.markdown("---")
 
-    #Summary metrics 
+    # Summary metrics
     c1, c2, c3, c4 = st.columns(4)
     c1.metric("Employees Shown", f"{len(filtered):,}")
-    c2.metric("High Risk",       f"{int((filtered['Predicted_Risk']==1).sum()):,}")
-    c3.metric("Low Risk",        f"{int((filtered['Predicted_Risk']==0).sum()):,}")
+    c2.metric("High Risk",
+              f"{int((filtered['Predicted_Risk']==1).sum()):,}")
+    c3.metric("Low Risk",
+              f"{int((filtered['Predicted_Risk']==0).sum()):,}")
     avg_r = filtered['Risk_Probability'].mean() * 100
     c4.metric("Avg Risk Score",  f"{avg_r:.1f}%")
 
@@ -166,7 +172,8 @@ if page == "Employee Risk Table":
     display_df = filtered[display_cols].copy()
 
     # Risk score as percentage with 1 decimal place
-    display_df['Risk_Probability'] = (display_df['Risk_Probability'] * 100).round(1)
+    display_df['Risk_Probability'] = (
+        display_df['Risk_Probability'] * 100).round(1)
 
     display_df.columns = [
         'ID', 'Age', 'Department', 'Job Role',
@@ -185,12 +192,11 @@ if page == "Employee Risk Table":
     # Download button
     csv = filtered[display_cols].to_csv(index=False).encode('utf-8')
     st.download_button(
-        label="Download Filtered Results as CSV",
+        label="Download Results as CSV",
         data=csv,
         file_name="absenteeism_risk_results.csv",
         mime="text/csv"
     )
-
 
 
 # Page 2: Predict Employee Risk
@@ -209,28 +215,38 @@ elif page == "Predict Employee Risk":
 
     with col1:
         st.markdown("**Work Situation**")
-        overtime    = st.selectbox("Does the employee work overtime?", ["No", "Yes"])
-        job_sat     = st.slider("Job Satisfaction (1 = Very Low, 5 = Very High)", 1, 5, 3)
-        job_involve = st.slider("How involved is the employee in their job? (1 =Low, 5 = High)", 1, 5, 3)
-        work_life   = st.slider("Work-Life Balance (1 = Poor, 4 = Excellent)", 1, 4, 2)
-        perf_rating = st.slider("Performance Rating (1 = Low, 5 = High)", 1, 5, 3)
-        work_env    = st.slider("Work Environment Satisfaction (1 = Low, 5 = High)", 1, 5, 3)
+        overtime = st.selectbox(
+            "Does the employee work overtime?", ["No", "Yes"])
+        job_sat = st.slider(
+            "Job Satisfaction (1 = Very Low, 5 = Very High)", 1, 5, 3)
+        job_involve = st.slider(
+            "How involved is the employee in their job? (1 =Low, 5 = High)", 1, 5, 3)
+        work_life = st.slider(
+            "Work-Life Balance (1 = Poor, 4 = Excellent)", 1, 4, 2)
+        perf_rating = st.slider(
+            "Performance Rating (1 = Low, 5 = High)", 1, 5, 3)
+        work_env = st.slider(
+            "Work Environment Satisfaction (1 = Low, 5 = High)", 1, 5, 3)
 
     with col2:
         st.markdown("**Pay and Personal Details**")
-        monthly_inc   = st.number_input("Monthly Income (RM)", 1000, 25000, 8000, 500)
-        hourly_rate   = st.number_input("Hourly Rate (Amount Paid Per Hour)", 10, 200, 60, 5)
-        avg_hours     = st.slider("Average Hours Worked Per Week", 20, 70, 45)
-        distance      = st.slider("Distance From Home (km)", 1, 60, 15)
-        num_companies = st.slider("Number of Previous Companies Worked", 1, 15, 3)
+        monthly_inc = st.number_input(
+            "Monthly Income (RM)", 1000, 25000, 8000, 500)
+        hourly_rate = st.number_input(
+            "Hourly Rate (Amount Paid Per Hour)", 10, 200, 60, 5)
+        avg_hours = st.slider("Average Hours Worked Per Week", 20, 70, 45)
+        distance = st.slider("Distance From Home (km)", 1, 60, 15)
+        num_companies = st.slider(
+            "Number of Previous Companies Worked", 1, 15, 3)
 
     with col3:
         st.markdown("**Experience and Career**")
-        project_count = st.slider("Number of Projects Currently Handling", 1, 20, 5)
-        training_hrs  = st.slider("Training Hours Last Year", 0, 100, 30)
+        project_count = st.slider(
+            "Number of Projects Currently Handling", 1, 20, 5)
+        training_hrs = st.slider("Training Hours Last Year", 0, 100, 30)
         years_company = st.slider("Years at This Company", 0, 30, 5)
-        age           = st.slider("Age", 20, 60, 35)
-        years_promo   = st.slider("Years Since Last Promotion", 0, 15, 2)
+        age = st.slider("Age", 20, 60, 35)
+        years_promo = st.slider("Years Since Last Promotion", 0, 15, 2)
 
     st.markdown("---")
     predict_btn = st.button(
@@ -238,10 +254,10 @@ elif page == "Predict Employee Risk":
     )
 
     if predict_btn:
-        #Compute engineered features from inputs
-        work_pressure    = avg_hours / (project_count + 1)
+        # Compute engineered features from inputs
+        work_pressure = avg_hours / (project_count + 1)
         experience_ratio = years_company / (age + 1)
-        promotion_gap    = years_promo / (years_company + 1)
+        promotion_gap = years_promo / (years_company + 1)
 
         feat_map = {
             'Overtime_Yes':                  1 if overtime == "Yes" else 0,
@@ -266,10 +282,10 @@ elif page == "Predict Employee Risk":
         }
 
         input_vals = [feat_map.get(f, 0) for f in sel_features]
-        input_df   = pd.DataFrame([input_vals], columns=sel_features)
+        input_df = pd.DataFrame([input_vals], columns=sel_features)
 
         pred_class = model.predict(input_df)[0]
-        pred_prob  = model.predict_proba(input_df)[0][1]
+        pred_prob = model.predict_proba(input_df)[0][1]
 
         st.markdown("---")
 
@@ -309,21 +325,28 @@ elif page == "Predict Employee Risk":
             st.markdown("**Main factors contributing to this result:**")
             flags = []
             if overtime == "Yes":
-                flags.append("Working overtime — a known driver of absenteeism risk")
+                flags.append(
+                    "Working overtime — a known driver of absenteeism risk")
             if job_sat <= 2:
-                flags.append("Low job satisfaction — directly linked to higher absence")
+                flags.append(
+                    "Low job satisfaction — directly linked to higher absence")
             if work_life <= 2:
-                flags.append("Poor work-life balance — associated with burnout and absence")
+                flags.append(
+                    "Poor work-life balance — associated with burnout and absence")
             if distance > 35:
                 flags.append("Long commute — can increase fatigue and absence")
             if project_count > 7:
-                flags.append("High Project Count: can be burnt out from high amount of project")    
+                flags.append(
+                    "High Project Count: can be burnt out from high amount of project")
             if work_pressure > 10:
-                flags.append("High workload — too many hours relative to project count")
+                flags.append(
+                    "High workload — too many hours relative to project count")
             if promotion_gap > 0.5:
-                flags.append("Limited career progression — may reduce motivation")
+                flags.append(
+                    "Limited career progression — may reduce motivation")
             if not flags:
-                flags.append("No major risk factors identified from the inputs provided")
+                flags.append(
+                    "No major risk factors identified from the inputs provided")
             for flag in flags:
                 st.markdown(f"- {flag}")
 
@@ -350,8 +373,8 @@ elif page == "Predict Employee Risk":
 
         # Tolerance: show all employees whose risk score is within 5% of the prediction
         tolerance = 0.05
-        lower     = max(0.0, pred_prob - tolerance)
-        upper     = min(1.0, pred_prob + tolerance)
+        lower = max(0.0, pred_prob - tolerance)
+        upper = min(1.0, pred_prob + tolerance)
 
         similar = df[
             (df['Risk_Probability'] >= lower) &
@@ -359,8 +382,8 @@ elif page == "Predict Employee Risk":
         ].copy()
         similar = similar.sort_values('Risk_Probability', ascending=False)
 
-
-        st.markdown(f"**{len(similar):,} employees found with a similar risk score.**")
+        st.markdown(
+            f"**{len(similar):,} employees found with a similar risk score.**")
 
         # Build similar employees table
         sim_cols = [
